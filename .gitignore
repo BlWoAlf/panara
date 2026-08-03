@@ -1,0 +1,11 @@
+/.env
+/compose.override.yaml
+
+.DS_Store
+Thumbs.db
+/.idea/*
+!/.idea/codeStyles/
+!/.idea/inspectionProfiles/
+/.vscode/*
+!/.vscode/extensions.json
+!/.vscode/settings.json
