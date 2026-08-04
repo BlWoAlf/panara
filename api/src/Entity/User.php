@@ -42,9 +42,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, SoftDel
     #[ORM\ManyToMany(targetEntity: Role::class, inversedBy: 'users')]
     private Collection $userRoles;
 
+    /**
+     * @var Collection<int, Vehicle>
+     */
+    #[ORM\OneToMany(targetEntity: Vehicle::class, mappedBy: 'owner')]
+    private Collection $vehicles;
+
+    /**
+     * @var Collection<int, Order>
+     */
+    #[ORM\OneToMany(targetEntity: Order::class, mappedBy: 'master')]
+    private Collection $ordersByMaster;
+
+    #[ORM\OneToMany(targetEntity: Order::class, mappedBy: 'client')]
+    private Collection $orders;
+
     public function __construct()
     {
         $this->userRoles = new ArrayCollection();
+        $this->vehicles = new ArrayCollection();
+        $this->orders = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -146,6 +163,96 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, SoftDel
     public function removeUserRole(Role $userRole): static
     {
         $this->userRoles->removeElement($userRole);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Vehicle>
+     */
+    public function getVehicles(): Collection
+    {
+        return $this->vehicles;
+    }
+
+    public function addVehicle(Vehicle $vehicle): static
+    {
+        if (!$this->vehicles->contains($vehicle)) {
+            $this->vehicles->add($vehicle);
+            $vehicle->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeVehicle(Vehicle $vehicle): static
+    {
+        if ($this->vehicles->removeElement($vehicle)) {
+            // set the owning side to null (unless already changed)
+            if ($vehicle->getOwner() === $this) {
+                $vehicle->setOwner(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Order>
+     */
+    public function getOrdersByMaster(): Collection
+    {
+        return $this->ordersByMaster;
+    }
+
+    /**
+     * @return Collection<int, Order>
+     */
+    public function getOrders(): Collection
+    {
+        return $this->orders;
+    }
+
+    public function addOrderByMaster(Order $order): static
+    {
+        if (!$this->orders->contains($order)) {
+            $this->orders->add($order);
+            $order->setMaster($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrderByMaster(Order $order): static
+    {
+        if ($this->orders->removeElement($order)) {
+            // set the owning side to null (unless already changed)
+            if ($order->getMaster() === $this) {
+                $order->setMaster(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function addOrder(Order $order): static
+    {
+        if (!$this->orders->contains($order)) {
+            $this->orders->add($order);
+            $order->setClient($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrder(Order $order): static
+    {
+        if ($this->orders->removeElement($order)) {
+            // set the owning side to null (unless already changed)
+            if ($order->getClient() === $this) {
+                $order->setClient(null);
+            }
+        }
 
         return $this;
     }
