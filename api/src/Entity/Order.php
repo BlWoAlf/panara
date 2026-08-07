@@ -67,12 +67,12 @@ class Order implements SoftDeletableInterface, TimeStampsInterface
         return $this;
     }
 
-    public function getWorkDatetime(): ?\DateTime
+    public function getWorkDatetime(): ?\DateTimeImmutable
     {
         return $this->workDatetime;
     }
 
-    public function setWorkDatetime(\DateTime $workDatetime): static
+    public function setWorkDatetime(\DateTimeImmutable $workDatetime): static
     {
         $this->workDatetime = $workDatetime;
 
