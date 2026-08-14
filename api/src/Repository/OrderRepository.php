@@ -20,6 +20,13 @@ class OrderRepository extends ServiceEntityRepository implements SoftDeletableRe
         parent::__construct($registry, Order::class);
     }
 
+    public function store(Order $order): Order
+    {
+        $this->getEntityManager()->persist($order);
+        $this->getEntityManager()->flush();
+
+        return $order;
+    }
     //    /**
     //     * @return Order[] Returns an array of Order objects
     //     */

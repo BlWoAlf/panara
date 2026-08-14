@@ -2,6 +2,8 @@
 
 namespace App\Controller\Admin;
 
+use App\DTOValidator\OrderDTOValidator;
+use App\Factory\OrderFactory;
 use App\ResponseBuilder\OrderResponseBuilder;
 use App\Service\OrderService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -13,7 +15,8 @@ class OrderController extends AbstractController
 {
     public function __construct(
         private OrderService $orderService,
-        private OrderResponseBuilder $orderResponseBuilder)
+        private OrderResponseBuilder $orderResponseBuilder,
+        private OrderFactory $orderFactory)
     {
     }
 
@@ -30,10 +33,16 @@ class OrderController extends AbstractController
         return $this->orderResponseBuilder->orderCollectionResponse($result, $meta);
     }
 
-    #[Route('api/admin/orders/store', name: 'admin_order_store', methods: ['PUT'])]
-    public function store(Request $request): JsonResponse
+    #[Route('api/admin/order/store', name: 'admin_order_store', methods: ['POST'])]
+    public function store(Request $request, OrderDTOValidator $orderDTOValidator): JsonResponse
     {
+        $data = json_decode($request->getContent(), true);
 
-        return new JsonResponse();
+        $storeOrderInputDTO = $this->orderFactory->makeStoreOrderInputDTO($data);
+        $orderDTOValidator->validate($storeOrderInputDTO);
+
+        $order = $this->orderService->store($storeOrderInputDTO);
+
+        return $this->orderResponseBuilder->orderResponse($order);
     }
 }

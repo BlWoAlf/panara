@@ -2,9 +2,8 @@
 
 namespace App\DTOValidator;
 
-use App\DTO\Input\User\StoreUserInputDTO;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class UserDTOValidator extends DTOValidator
+class OrderDTOValidator extends DTOValidator
 {
 }

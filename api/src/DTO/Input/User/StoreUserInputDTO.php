@@ -2,9 +2,10 @@
 
 namespace App\DTO\Input\User;
 
+use App\DTO\Input\StoreInputDTOInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class StoreUserInputDTO
+class StoreUserInputDTO implements StoreInputDTOInterface
 {
     #[Assert\NotBlank(allowNull: null)]
     #[Assert\Length(min: 2, max: 255)]

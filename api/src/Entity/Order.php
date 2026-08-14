@@ -35,16 +35,18 @@ class Order implements SoftDeletableInterface, TimeStampsInterface
     private ?array $partsList = null;
 
     #[ORM\ManyToOne(inversedBy: 'orders')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Vehicle $vehicle = null;
 
     #[ORM\Column(type: Types::SMALLINT)]
     private ?int $status = null;
 
     #[ORM\ManyToOne(inversedBy: 'orders')]
+    #[ORM\JoinColumn(nullable: true)]
     private ?User $master = null;
 
     #[ORM\ManyToOne(inversedBy: 'orders')]
+    #[ORM\JoinColumn(nullable: true)]
     private ?User $client = null;
 
     #[ORM\Column(nullable: true)]
