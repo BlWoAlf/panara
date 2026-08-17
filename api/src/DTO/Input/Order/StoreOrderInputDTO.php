@@ -18,10 +18,10 @@ class StoreOrderInputDTO implements StoreInputDTOInterface
     #[Assert\NotBlank(allowNull: true)]
     public ?string $description = null;
 
-    #[Assert\Type(type: 'json')]
+    #[Assert\Type(type: 'array')]
     public ?array $worksList = null;
 
-    #[Assert\Type(type: 'json')]
+    #[Assert\Type(type: 'array')]
     public ?array $partsList = null;
 
     #[Assert\NotNull]

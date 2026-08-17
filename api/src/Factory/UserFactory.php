@@ -29,8 +29,8 @@ class UserFactory
     {
         $storeUserInputDTO = new StoreUserInputDTO();
 
-        $storeUserInputDTO->name = $data['name'];
-        $storeUserInputDTO->password = $data['password'];
+        $storeUserInputDTO->name = $data['name'] ?? null;
+        $storeUserInputDTO->password = $data['password'] ?? null;
 
         return $storeUserInputDTO;
     }

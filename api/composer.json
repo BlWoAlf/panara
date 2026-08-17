@@ -68,6 +68,11 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
+        ],
+        "test": [
+            "@php bin/console doctrine:database:create --env=test --if-not-exists",
+            "@php bin/phpunit",
+            "@php bin/console doctrine:database:drop --env=test --force --if-exists"
         ]
     },
     "conflict": {

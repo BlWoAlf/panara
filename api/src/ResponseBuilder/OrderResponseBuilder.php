@@ -21,7 +21,7 @@ class OrderResponseBuilder
         return new JsonResponse($orderResource, $status, $headers, $isJson);
     }
 
-    public function orderCollectionResponse(array $orders, array $meta, int $total = null, $status = 200, $headers = []): JsonResponse
+    public function orderCollectionResponse(array $orders, array $meta, ?int $total = null, $status = 200, $headers = []): JsonResponse
     {
         $metaPaginationOutputDTO = $this->paginationFactory->makeMetaPaginationOutputDTO($meta);
         $orderOutputDTOCollection = $this->orderFactory->makeOrderOutputDTOCollection($orders, $metaPaginationOutputDTO);
