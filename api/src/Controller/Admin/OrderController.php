@@ -33,7 +33,7 @@ class OrderController extends AbstractController
         return $this->orderResponseBuilder->orderCollectionResponse($result, $meta);
     }
 
-    #[Route('api/admin/order/store', name: 'admin_order_store', methods: ['POST'])]
+    #[Route('api/admin/orders/store', name: 'admin_order_store', methods: ['POST'])]
     public function store(Request $request, OrderDTOValidator $orderDTOValidator): JsonResponse
     {
         $data = json_decode($request->getContent(), true);

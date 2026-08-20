@@ -18,9 +18,15 @@ class OrderOutputDTO
     #[Groups(groups: ['order:item'])]
     public ?string $description = null;
 
+    /**
+     * @var WorksListOutputDTO[]|null
+     */
     #[Groups(groups: ['order:item'])]
     public ?array $worksList = null;
 
+    /**
+     * @var PartsListOutputDTO[]|null
+     */
     #[Groups(groups: ['order:item'])]
     public ?array $partsList = null;
 

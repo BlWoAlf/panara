@@ -5,6 +5,8 @@ namespace App\Entity;
 use App\Entity\Contract\{SoftDeletableInterface, TimeStampsInterface};
 use App\Entity\Trait\{SoftDeletableTrait, TimeStampsTrait};
 use App\Repository\OrderRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -28,12 +30,6 @@ class Order implements SoftDeletableInterface, TimeStampsInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?array $worksList = null;
-
-    #[ORM\Column(nullable: true)]
-    private ?array $partsList = null;
-
     #[ORM\ManyToOne(inversedBy: 'orders')]
     #[ORM\JoinColumn(nullable: true)]
     private ?Vehicle $vehicle = null;
@@ -49,8 +45,26 @@ class Order implements SoftDeletableInterface, TimeStampsInterface
     #[ORM\JoinColumn(nullable: true)]
     private ?User $client = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?float $payment = null;
+    #[ORM\Column(type: Types::DECIMAL, precision: 18, scale: 2, nullable: true)]
+    private ?string $payment = null;
+
+    /**
+     * @var Collection<int, PartsList>
+     */
+    #[ORM\OneToMany(targetEntity: PartsList::class, mappedBy: 'orderNumber')]
+    private Collection $partsList;
+
+    /**
+     * @var Collection<int, WorksList>
+     */
+    #[ORM\OneToMany(targetEntity: WorksList::class, mappedBy: 'orderNumber')]
+    private Collection $worksList;
+
+    public function __construct()
+    {
+        $this->partsList = new ArrayCollection();
+        $this->worksList = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -89,30 +103,6 @@ class Order implements SoftDeletableInterface, TimeStampsInterface
     public function setDescription(?string $description): static
     {
         $this->description = $description;
-
-        return $this;
-    }
-
-    public function getWorksList(): ?array
-    {
-        return $this->worksList;
-    }
-
-    public function setWorksList(?array $worksList): static
-    {
-        $this->worksList = $worksList;
-
-        return $this;
-    }
-
-    public function getPartsList(): ?array
-    {
-        return $this->partsList;
-    }
-
-    public function setPartsList(?array $partsList): static
-    {
-        $this->partsList = $partsList;
 
         return $this;
     }
@@ -173,6 +163,84 @@ class Order implements SoftDeletableInterface, TimeStampsInterface
     public function setPayment(?float $payment): static
     {
         $this->payment = $payment;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PartsList>
+     */
+    public function getPartsList(): Collection
+    {
+        return $this->partsList;
+    }
+
+    public function addPartsList(PartsList $partsList): static
+    {
+        if (!$this->partsList->contains($partsList)) {
+            $this->partsList->add($partsList);
+            $partsList->setOrderNumber($this);
+        }
+
+        return $this;
+    }
+
+    public function removePartsList(PartsList $partsList): static
+    {
+        if ($this->partsList->removeElement($partsList)) {
+            // set the owning side to null (unless already changed)
+            if ($partsList->getOrderNumber() === $this) {
+                $partsList->setOrderNumber(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, WorksList>
+     */
+    public function getWorksList(): Collection
+    {
+        return $this->worksList;
+    }
+
+    public function addWorksList(WorksList $worksList): static
+    {
+        if (!$this->worksList->contains($worksList)) {
+            $this->worksList->add($worksList);
+            $worksList->setOrderNumber($this);
+        }
+
+        return $this;
+    }
+
+    public function removeWorksList(WorksList $worksList): static
+    {
+        if ($this->worksList->removeElement($worksList)) {
+            // set the owning side to null (unless already changed)
+            if ($worksList->getOrderNumber() === $this) {
+                $worksList->setOrderNumber(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function setWorksList(array $worksListCollection): static
+    {
+        foreach ($worksListCollection as $worksList) {
+            $this->addWorksList($worksList);
+        }
+
+        return $this;
+    }
+
+    public function setPartsList(array $partsListCollection): static
+    {
+        foreach ($partsListCollection as $partsList) {
+            $this->addPartsList($partsList);
+        }
 
         return $this;
     }

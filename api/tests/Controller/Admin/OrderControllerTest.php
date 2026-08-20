@@ -15,10 +15,10 @@ final class OrderControllerTest extends ApiWebTestCase
             'workDatetime' => '2026-08-20T10:00:00+00:00',
             'description' => 'Замена масла',
             'worksList' => [
-                ['Замена масла' => 500, 'количество' => 1],
+                ['name' => 'Замена масла', 'cost' => 500, 'time' => 30],
             ],
             'partsList' => [
-                ['Масляный фильтр' => 800, 'количество' => 1],
+                ['name' => 'Масляный фильтр', 'number' => 'OF-123', 'cost' => 800, 'count' => 1],
             ],
             'status' => 1,
             'payment' => 1500.5,
@@ -27,7 +27,7 @@ final class OrderControllerTest extends ApiWebTestCase
 
     private function createOrder(KernelBrowser $client, string $token, array $overrides = []): array
     {
-        $this->jsonRequest($client, 'POST', '/api/admin/order/store', $this->validOrderPayload($overrides), [
+        $this->jsonRequest($client, 'POST', '/api/admin/orders/store', $this->validOrderPayload($overrides), [
             'Authorization' => 'Bearer '.$token,
         ]);
 
@@ -111,8 +111,13 @@ final class OrderControllerTest extends ApiWebTestCase
         self::assertSame('Замена масла', $order['description']);
         self::assertSame(1, $order['status']);
         self::assertSame(1500.5, $order['payment']);
-        self::assertSame([['Замена масла' => 500, 'количество' => 1]], $order['worksList']);
-        self::assertSame([['Масляный фильтр' => 800, 'количество' => 1]], $order['partsList']);
+        self::assertCount(1, $order['worksList']);
+        self::assertSame('Замена масла', $order['worksList'][0]['name']);
+        self::assertSame(30, $order['worksList'][0]['time']);
+        self::assertCount(1, $order['partsList']);
+        self::assertSame('Масляный фильтр', $order['partsList'][0]['name']);
+        self::assertSame('OF-123', $order['partsList'][0]['number']);
+        self::assertSame(1, $order['partsList'][0]['count']);
         self::assertNull($order['vehicleId']);
         self::assertNull($order['masterId']);
         self::assertNull($order['clientId']);
@@ -123,7 +128,7 @@ final class OrderControllerTest extends ApiWebTestCase
         self::initializeDatabase();
 
         $client = static::createClient();
-        $this->jsonRequest($client, 'POST', '/api/admin/order/store', $this->validOrderPayload());
+        $this->jsonRequest($client, 'POST', '/api/admin/orders/store', $this->validOrderPayload());
 
         self::assertResponseStatusCodeSame(401);
     }
@@ -135,7 +140,7 @@ final class OrderControllerTest extends ApiWebTestCase
         $client = static::createClient();
         $auth = $this->registerUser($client);
 
-        $this->jsonRequest($client, 'POST', '/api/admin/order/store', $this->validOrderPayload(), [
+        $this->jsonRequest($client, 'POST', '/api/admin/orders/store', $this->validOrderPayload(), [
             'Authorization' => 'Bearer '.$auth['token'],
         ]);
 
@@ -150,7 +155,7 @@ final class OrderControllerTest extends ApiWebTestCase
         $client = static::createClient();
         $admin = $this->createAdminAuthHeader($client);
 
-        $this->jsonRequest($client, 'POST', '/api/admin/order/store', $payload, [
+        $this->jsonRequest($client, 'POST', '/api/admin/orders/store', $payload, [
             'Authorization' => 'Bearer '.$admin['token'],
         ]);
 
@@ -191,6 +196,69 @@ final class OrderControllerTest extends ApiWebTestCase
         yield 'status is missing' => [
             'payload' => array_diff_key($valid, ['status' => null]),
             'field' => 'status',
+        ];
+
+        yield 'worksList item is missing name' => [
+            'payload' => array_merge($valid, [
+                'worksList' => [
+                    ['cost' => 500, 'time' => 30],
+                ],
+            ]),
+            'field' => 'worksList[0].name',
+        ];
+
+        yield 'worksList item is missing cost' => [
+            'payload' => array_merge($valid, [
+                'worksList' => [
+                    ['name' => 'Замена масла', 'time' => 30],
+                ],
+            ]),
+            'field' => 'worksList[0].cost',
+        ];
+
+        yield 'worksList item is missing time' => [
+            'payload' => array_merge($valid, [
+                'worksList' => [
+                    ['name' => 'Замена масла', 'cost' => 500],
+                ],
+            ]),
+            'field' => 'worksList[0].time',
+        ];
+
+        yield 'partsList item is missing name' => [
+            'payload' => array_merge($valid, [
+                'partsList' => [
+                    ['number' => 'OF-123', 'cost' => 800, 'count' => 1],
+                ],
+            ]),
+            'field' => 'partsList[0].name',
+        ];
+
+        yield 'partsList item is missing number' => [
+            'payload' => array_merge($valid, [
+                'partsList' => [
+                    ['name' => 'Масляный фильтр', 'cost' => 800, 'count' => 1],
+                ],
+            ]),
+            'field' => 'partsList[0].number',
+        ];
+
+        yield 'partsList item is missing cost' => [
+            'payload' => array_merge($valid, [
+                'partsList' => [
+                    ['name' => 'Масляный фильтр', 'number' => 'OF-123', 'count' => 1],
+                ],
+            ]),
+            'field' => 'partsList[0].cost',
+        ];
+
+        yield 'partsList item is missing count' => [
+            'payload' => array_merge($valid, [
+                'partsList' => [
+                    ['name' => 'Масляный фильтр', 'number' => 'OF-123', 'cost' => 800],
+                ],
+            ]),
+            'field' => 'partsList[0].count',
         ];
     }
 }
